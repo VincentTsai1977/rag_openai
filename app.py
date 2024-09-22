@@ -4,11 +4,11 @@ from openai import OpenAI
 
 app = Flask(__name__)
 
-# 设置OpenAI API密钥
+# Set OpenAI API key
 api_key = os.getenv('OPENAI_API_KEY')
 client = OpenAI(api_key=api_key)
 
-# 定义vector store ID和assistant ID
+# Define vector store ID and assistant ID
 VECTOR_STORE_ID = os.getenv('VECTOR_STORE_ID')
 ASSISTANT_ID = os.getenv('ASSISTANT_ID')
 
@@ -45,27 +45,21 @@ def query_assistant():
         if not query:
             return jsonify({"status": "error", "message": "Query is required"}), 400
 
-        # 创建一个新的thread
         thread = client.beta.threads.create()
-
-        # 添加用户的消息到thread
         client.beta.threads.messages.create(
             thread_id=thread.id,
             role="user",
             content=query
         )
 
-        # 运行assistant
         run = client.beta.threads.runs.create(
             thread_id=thread.id,
             assistant_id=ASSISTANT_ID
         )
 
-        # 等待运行完成
         while run.status != 'completed':
             run = client.beta.threads.runs.retrieve(thread_id=thread.id, run_id=run.id)
 
-        # 获取assistant的回复
         messages = client.beta.threads.messages.list(thread_id=thread.id)
         assistant_message = next((msg for msg in messages if msg.role == 'assistant'), None)
 
@@ -73,9 +67,9 @@ def query_assistant():
             return jsonify({"status": "success", "response": assistant_message.content[0].text.value})
         else:
             return jsonify({"status": "error", "message": "No response from assistant"}), 500
-
     except Exception as e:
         return jsonify({"status": "error", "message": str(e)}), 500
 
+# Replit-specific code
 if __name__ == '__main__':
-    app.run()
+    app.run(host='0.0.0.0', port=8080)
