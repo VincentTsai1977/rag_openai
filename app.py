@@ -5,12 +5,12 @@ from openai import OpenAI
 app = Flask(__name__)
 
 # 设置OpenAI API密钥
-os.environ["OPENAI_API_KEY"] = OPENAI_API_KEY
-client = OpenAI()
+api_key = os.getenv('OPENAI_API_KEY')
+client = OpenAI(api_key=api_key)
 
 # 定义vector store ID和assistant ID
-VECTOR_STORE_ID = VECTOR_STORE_ID
-ASSISTANT_ID = ASSISTANT_ID
+VECTOR_STORE_ID = os.getenv('VECTOR_STORE_ID')
+ASSISTANT_ID = os.getenv('ASSISTANT_ID')
 
 @app.route('/get_vector_store', methods=['GET'])
 def get_vector_store():
